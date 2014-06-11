@@ -1,0 +1,26 @@
+#!/bin/bash
+VERSION=${1-0.90.7}
+NAME=elasticsearch-$VERSION
+LOCAL_FILE=/var/tmp/$NAME.tar.gz
+LOCAL_PATH=/var/tmp/$NAME
+REMOTE_FILE=https://download.elasticsearch.org/elasticsearch/elasticsearch/$NAME.tar.gz
+
+if [ ! -f $LOCAL_FILE ]; then
+  echo "Downloading $VERSION..."
+  wget -q -O $LOCAL_FILE $REMOTE_FILE
+  if [[ $? != 0 ]]; then
+    echo "Error downloading"
+    rm $LOCAL_FILE
+    exit 1
+  fi
+fi
+
+if [ ! -d $LOCAL_PATH ]; then
+  echo "Installing $VERSION..."
+  cd /var/tmp
+  tar -zxf $LOCAL_FILE
+fi
+
+$LOCAL_PATH/bin/plugin -i lukas-vlcek/bigdesk
+
+$LOCAL_PATH/bin/elasticsearch -f
